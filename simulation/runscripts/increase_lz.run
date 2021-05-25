@@ -1,0 +1,45 @@
+units metal
+atom_style atomic
+boundary p p p
+
+read_data ../${dataFile}
+
+pair_style vashishta
+pair_coeff * * ../../SiO.1997.vashishta O Si
+
+mass  1 15.9994
+mass  2 28.08
+
+timestep 0.001
+
+thermo 100
+thermo_style custom step time temp pe etotal pxx pyy pzz press vol spcpu cpuremain 
+
+log log.lammps
+
+variable lx equal lx
+variable lz equal lz
+
+variable atoms_lx equal v_lx-5.0
+variable atoms_lz equal v_lz-3.0
+
+region freely_moving_atoms block EDGE $(v_atoms_lx) EDGE EDGE 3.0 $(v_atoms_lz)
+group free_atoms region freely_moving_atoms
+
+velocity free_atoms create ${temperature} 64526 dist gaussian
+fix nvt free_atoms nvt temp ${temperature} ${temperature} 1.0
+
+compute pe_atom all pe/atom
+
+dump 1 all custom 10000 trajectory.bin id type x y z c_pe_atom
+
+thermo_style custom step time temp pe etotal pxx pyy pzz press vol v_lx v_lz spcpu cpuremain
+
+fix increase_z all deform 1 z final 0 211.4645
+
+run 30000
+unfix increase_z
+
+run 1000
+
+write_data increased_lz.data
