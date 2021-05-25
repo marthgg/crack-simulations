@@ -2,7 +2,7 @@ units metal
 atom_style atomic
 boundary p p p
 
-read_data ../${dataFile}
+read_data ../relaxation/${dataFile}
 
 pair_style vashishta
 pair_coeff * * ../SiO.1997.vashishta O Si
@@ -34,11 +34,6 @@ fix nvt free_atoms nvt temp ${temperature} ${temperature} 1.0
 thermo_style custom step time temp pe etotal pxx pyy pzz press vol v_lx v_lz spcpu cpuremain
 
 run 10000
-
-fix deform_x all deform 1 x scale 0.98
-
-run 30000
-unfix deform_x
 
 fix deform all deform 1 z scale ${deform_z}
 

@@ -1,0 +1,29 @@
+units metal
+atom_style atomic
+boundary p p p
+
+read_data ../${dataFile}
+
+pair_style vashishta
+pair_coeff * * ../SiO.1997.vashishta O Si
+
+mass  1 15.9994
+mass  2 28.08
+
+timestep 0.001
+
+thermo 100
+thermo_style custom step time temp pe etotal pxx pyy pzz press vol spcpu cpuremain 
+
+dump 1 all custom 10000 trajectory.bin id type x y z 
+
+log log.lammps
+
+velocity all create ${temperature} 64526 dist gaussian 
+fix npt all npt temp ${temperature} ${temperature} 1.0 x 5000 5000 10 y 1 1 1 z 1 1 1
+
+thermo_style custom step time temp pe etotal pxx pyy pzz press vol spcpu cpuremain
+
+run 50000
+
+write_data relaxed.data
